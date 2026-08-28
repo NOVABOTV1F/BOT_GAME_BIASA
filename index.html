@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aria — Auto Bypass & Key Extractor</title>
+    <meta name="description" content="Aria Auto Bypass & Key Extractor - Private Access Tool">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(255, 77, 109, 0.6);
+            --accent-1: #ff4d6d;
+            --accent-2: #c9184a;
+            --accent-3: #ff8fa3;
+            --accent-4: #590d22;
+            --success: #2ecc71;
+            --success-dark: #1a7a3c;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --text-primary: #f0f0f5;
+            --text-secondary: #b8b8c8;
+            --text-muted: #666680;
+            --text-on-accent: #ffffff;
+            --font-sans: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Animated Gradient Background */
+        .bg-orbs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: orbFloat 15s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent-1);
+            top: -15%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 450px;
+            height: 450px;
+            background: #7b2cbf;
+            bottom: -10%;
+            right: -8%;
+            animation-delay: -5s;
+            opacity: 0.2;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: #3a86ff;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: -10s;
+            opacity: 0.15;
+        }
+
+        .orb-4 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-2);
+            bottom: 20%;
+            left: 5%;
+            animation-delay: -7s;
+            opacity: 0.2;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -40px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(40px, 30px) scale(1.05); }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: particleFloat 10s ease-in-out infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh); opacity: 0; }
+        }
+
+        /* Main Container */
+        .app-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 820px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-subtle);
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                0 0 60px rgba(255, 77, 109, 0.08);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Glass Shine Effect */
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.03) 50%,
+                transparent 70%
+            );
+            pointer-events: none;
+            z-index: 0;
+            animation: shine 6s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0%, 100% { transform: translateX(-25%); }
+            50% { transform: translateX(25%); }
+        }
+
+        /* Gradient Border Top */
+        .app-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg,
+                transparent,
+                var(--accent-1) 20%,
+                var(--accent-3) 40%,
+                var(--accent-1) 60%,
+                var(--accent-2) 80%,
+                transparent
+            );
+            background-size: 200% 100%;
+            animation: borderShimmer 3s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes borderShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Header */
+        .app-header {
+            padding: 40px 40px 24px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-ring {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 20px;
+            position: relative;
+            box-shadow:
+                0 0 40px rgba(255, 77, 109, 0.4),
+                0 0 80px rgba(255, 77, 109, 0.2);
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+
+        .logo-ring::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 77, 109, 0.3);
+            animation: logoRing 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(255, 77, 109, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(255, 77, 109, 0.6); }
+        }
+
+        @keyframes logoRing {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.3; }
+        }
+
+        .app-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #ffb3c1 50%, #ff4d6d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+
+        .app-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .app-subtitle .heart {
+            color: var(--accent-1);
+            display: inline-block;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.15); }
+        }
+
+        /* Body Content */
+        .app-body {
+            padding: 10px 40px 36px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Input Group */
+        .input-group {
+            margin-bottom: 22px;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .input-group label .icon {
+            font-size: 1.1rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper textarea,
+        .input-wrapper input {
+            width: 100%;
+            padding: 16px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: var(--font-sans);
+            transition: all var(--transition-normal);
+            outline: none;
+            resize: vertical;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input-wrapper textarea {
+            min-height: 100px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .input-wrapper textarea::placeholder,
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .input-wrapper textarea:focus,
+        .input-wrapper input:focus {
+            border-color: var(--border-active);
+            background: rgba(255, 77, 109, 0.04);
+            box-shadow:
+                0 0 0 4px rgba(255, 77, 109, 0.1),
+                0 0 20px rgba(255, 77, 109, 0.08);
+        }
+
+        .input-wrapper textarea:hover,
+        .input-wrapper input:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Row for side-by-side inputs */
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Number input arrows */
+        .input-wrapper input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .input-wrapper input[type="number"]::-webkit-outer-spin-button,
+        .input-wrapper input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Button Row */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px 22px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: var(--font-sans);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: all 0.5s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: var(--text-on-accent);
+            box-shadow:
+                0 8px 30px rgba(255, 77, 109, 0.35),
+                0 2px 10px rgba(255, 77, 109, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 15px 40px rgba(255, 77, 109, 0.45),
+                0 4px 15px rgba(255, 77, 109, 0.25);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow:
+                0 4px 15px rgba(255, 77, 109, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #1a8a4a, #0f6b35);
+            color: #fff;
+            box-shadow:
+                0 8px 30px rgba(46, 204, 113, 0.3),
+                0 2px 10px rgba(46, 204, 113, 0.15);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 15px 40px rgba(46, 204, 113, 0.4),
+                0 4px 15px rgba(46, 204, 113, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Progress Bar */
+        .progress-wrapper {
+            margin-top: 22px;
+            display: none;
+        }
+
+        .progress-wrapper.active {
+            display: block;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg,
+                var(--accent-1),
+                var(--accent-3),
+                #ff6b8a,
+                var(--accent-1)
+            );
+            background-size: 300% 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.4s ease;
+            animation: progressShimmer 2s linear infinite;
+            position: relative;
+        }
+
+        @keyframes progressShimmer {
+            0% { background-position: 0% 0; }
+            100% { background-position: 300% 0; }
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.4);
+            filter: blur(8px);
+            border-radius: 4px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* Status / Console Log */
+        .console {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            min-height: 120px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            line-height: 1.8;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 77, 109, 0.4) transparent;
+        }
+
+        .console::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .console::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .console::-webkit-scrollbar-thumb {
+            background: rgba(255, 77, 109, 0.4);
+            border-radius: 2px;
+        }
+
+        .console .log-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 2px 0;
+            opacity: 0;
+            animation: logFadeIn 0.3s ease forwards;
+        }
+
+        @keyframes logFadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .console .log-time {
+            color: #555575;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            min-width: 68px;
+            flex-shrink: 0;
+        }
+
+        .console .log-message {
+            color: var(--text-secondary);
+            word-break: break-word;
+        }
+
+        .console .log-message.log-success { color: var(--success); }
+        .console .log-message.log-warning { color: var(--warning); }
+        .console .log-message.log-error { color: var(--danger); }
+        .console .log-message.log-info { color: var(--info); }
+        .console .log-message.log-accent { color: var(--accent-3); }
+        .console .log-message.log-bold { font-weight: 600; }
+
+        .console .log-separator {
+            border: none;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+            opacity: 0.6;
+        }
+
+        /* Results */
+        .results {
+            margin-top: 22px;
+            display: none;
+            gap: 10px;
+            flex-direction: column;
+        }
+
+        .results.active {
+            display: flex;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .results-header .count {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--success);
+            letter-spacing: 0.5px;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: all var(--transition-fast);
+            cursor: default;
+        }
+
+        .result-card:hover {
+            background: rgba(255, 77, 109, 0.06);
+            border-color: rgba(255, 77, 109, 0.3);
+            transform: translateX(4px);
+        }
+
+        .result-card .key-value {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--success);
+            word-break: break-all;
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .result-card .copy-btn {
+            padding: 8px 14px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-family: var(--font-sans);
+        }
+
+        .result-card .copy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: overlayIn 0.3s ease;
+        }
+
+        @keyframes overlayIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            box-shadow:
+                0 40px 100px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(255, 77, 109, 0.15);
+            width: 100%;
+            max-width: 520px;
+            overflow: hidden;
+            animation: modalIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.85) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-3), var(--accent-1));
+            background-size: 200% 100%;
+            animation: borderShimmer 2s linear infinite;
+        }
+
+        .modal-header {
+            padding: 24px 28px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(255, 77, 109, 0.12), transparent);
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.3px;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 77, 109, 0.2);
+            color: var(--accent-3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 12px 28px 28px;
+            max-height: 360px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 77, 109, 0.4) transparent;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 77, 109, 0.4);
+            border-radius: 2px;
+        }
+
+        .modal-body .success-emoji {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 12px;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-20px); }
+            50% { transform: translateY(0); }
+            70% { transform: translateY(-10px); }
+            85% { transform: translateY(0); }
+        }
+
+        .modal-body .success-text {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-body .success-count {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+
+        .modal-body .key-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .modal-body .key-item {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--success);
+            word-break: break-all;
+            border: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .modal-body .key-item:hover {
+            border-color: rgba(46, 204, 113, 0.4);
+            background: rgba(46, 204, 113, 0.05);
+        }
+
+        /* Footer */
+        .app-footer {
+            padding: 18px 40px 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            border-top: 1px solid var(--border-subtle);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.5px;
+        }
+
+        .app-footer .footer-heart {
+            color: var(--accent-1);
+            animation: heartbeat 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        .app-footer .version {
+            color: var(--text-muted);
+            opacity: 0.7;
+            font-size: 0.7rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .app-header {
+                padding: 28px 24px 18px;
+            }
+
+            .logo-ring {
+                width: 68px;
+                height: 68px;
+                font-size: 28px;
+            }
+
+            .app-title {
+                font-size: 1.5rem;
+            }
+
+            .app-body {
+                padding: 8px 24px 24px;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: 100%;
+            }
+
+            .console {
+                max-height: 180px;
+            }
+
+            .app-footer {
+                padding: 14px 24px 18px;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .app-header {
+                padding: 20px 16px 14px;
+            }
+
+            .app-title {
+                font-size: 1.3rem;
+            }
+
+            .app-body {
+                padding: 6px 16px 18px;
+            }
+
+            .console {
+                font-size: 0.7rem;
+                padding: 14px;
+            }
+
+            .modal-body {
+                padding: 10px 18px 20px;
+            }
+
+            .modal-header {
+                padding: 18px 18px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animated Background Orbs -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+    </div>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Main App -->
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-ring">💕</div>
+            <h1 class="app-title">Aria Auto Bypass</h1>
+            <p class="app-subtitle">
+                Key Extractor & Shortlink Bypass
+                <span class="heart">💕</span>
+            </p>
+        </header>
+
+        <main class="app-body">
+            <!-- URL Input -->
+            <div class="input-group">
+                <label>
+                    <span class="icon">🔗</span> URL Target / Shortlink
+                </label>
+                <div class="input-wrapper">
+                    <textarea
+                        id="targetUrl"
+                        placeholder="Tempel URL di sini...&#10;Contoh: https://auth.platorelay.com/a?d=...&#10;&#10;Bisa juga beberapa URL (satu per baris)"
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- Settings Row -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label>
+                        <span class="icon">⏱️</span> Delay (detik)
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" id="delayInput" value="3" min="1" max="60" step="1">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>
+                        <span class="icon">🔁</span> Jumlah Iterasi
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="number" id="iterInput" value="5" min="1" max="100" step="1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-row">
+                <button class="btn btn-primary" id="btnStart" onclick="startBypass()">
+                    🚀 Mulai Bypass
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()">
+                    🗑️ Bersihkan
+                </button>
+                <button class="btn btn-success" id="btnCopyAll" onclick="copyAllKeys()" disabled>
+                    📋 Copy Semua
+                </button>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-wrapper" id="progressWrapper">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-label">
+                    <span id="progressText">Memulai...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+            </div>
+
+            <!-- Console Log -->
+            <div class="console" id="console">
+                <div class="log-entry">
+                    <span class="log-time">[SYS]</span>
+                    <span class="log-message log-accent">💕 Aria siap bantu kamu Sayang!</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-time">[SYS]</span>
+                    <span class="log-message">Tempel URL → Atur Delay & Iterasi → Klik Mulai Bypass</span>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <div class="results-header">
+                    <span class="count" id="resultCount">0 Key Ditemukan</span>
+                </div>
+                <div id="resultList"></div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            Dibuat dengan <span class="footer-heart">💕</span> oleh Aria —
+            <span class="version">v1.0.0 Premium</span>
+        </footer>
+    </div>
+
+    <!-- Modal Popup -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🔑 Key Berhasil Diambil!</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="success-emoji">🎉</div>
+                <p class="success-text">Auto Bypass selesai! Key sudah di-copy otomatis ke clipboard.</p>
+                <div class="success-count" id="modalCount">0</div>
+                <div class="key-list" id="modalKeyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // ARIA BYPASS ENGINE v1.0.0 Premium
+        // ============================================
+
+        let foundKeys = [];
+        let isRunning = false;
+
+        // ====== PARTICLES ======
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (8 + Math.random() * 7) + 's';
+                particle.style.width = (2 + Math.random() * 3) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.opacity = 0.1 + Math.random() * 0.4;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // ====== LOG SYSTEM ======
+        function log(message, type = '') {
+            const consoleEl = document.getElementById('console');
+            const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="log-message ${type}">${escapeHtml(message)}</span>
+            `;
+            consoleEl.appendChild(entry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function logSeparator() {
+            const consoleEl = document.getElementById('console');
+            const sep = document.createElement('hr');
+            sep.className = 'log-separator';
+            consoleEl.appendChild(sep);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ====== PROGRESS ======
+        function setProgress(percent, text = '') {
+            const wrapper = document.getElementById('progressWrapper');
+            const fill = document.getElementById('progressFill');
+            const percentEl = document.getElementById('progressPercent');
+            const textEl = document.getElementById('progressText');
+
+            wrapper.classList.add('active');
+            fill.style.width = percent + '%';
+            percentEl.textContent = Math.round(percent) + '%';
+            if (text) textEl.textContent = text;
+        }
+
+        function hideProgress() {
+            const wrapper = document.getElementById('progressWrapper');
+            setTimeout(() => {
+                wrapper.classList.remove('active');
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('progressPercent').textContent = '0%';
+            }, 600);
+        }
+
+        // ====== CLEAR ======
+        function clearAll() {
+            if (isRunning) {
+                log('⚠️ Tunggu proses selesai dulu ya Sayang...', 'log-warning');
+                return;
+            }
+            document.getElementById('targetUrl').value = '';
+            foundKeys = [];
+            document.getElementById('resultList').innerHTML = '';
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('btnCopyAll').disabled = true;
+            document.getElementById('console').innerHTML = '';
+            log('✨ Bersih! Aria siap lagi 😋', 'log-accent');
+        }
+
+        // ====== EXTRACTION HELPERS ======
+        function extractBase64Keys(str) {
+            const pattern = /[A-Za-z0-9+\/]{40,}={0,2}/g;
+            return str.match(pattern) || [];
+        }
+
+        function extractQueryParams(url) {
+            const params = {};
+            try {
+                const urlObj = new URL(url);
+                urlObj.searchParams.forEach((value, key) => {
+                    params[key] = value;
+                });
+            } catch (e) {
+                const queryPart = url.split('?')[1];
+                if (queryPart) {
+                    const pairs = queryPart.split('&');
+                    pairs.forEach(pair => {
+                        const [k, ...vParts] = pair.split('=');
+                        if (k && vParts.length > 0) {
+                            params[k] = decodeURIComponent(vParts.join('='));
+                        }
+                    });
+                }
+            }
+            return params;
+        }
+
+        function extractKeysFromText(text) {
+            const keys = [];
+            const patterns = [
+                /(?:key|token|api[_-]?key|access[_-]?token|auth[_-]?token|secret|credential)s?\s*[=:]\s*["']([^"']{15,})["']/gi,
+                /["']([a-zA-Z0-9._\-]{30,})["']/g,
+                /Bearer\s+([a-zA-Z0-9._\-]{20,})/gi,
+                /"key"\s*:\s*"([^"]{15,})"/gi,
+                /"token"\s*:\s*"([^"]{15,})"/gi,
+                /"access[_-]?key"\s*:\s*"([^"]{15,})"/gi,
+                /"api[_-]?key"\s*:\s*"([^"]{15,})"/gi,
+            ];
+
+            patterns.forEach(pattern => {
+                let match;
+                while ((match = pattern.exec(text)) !== null) {
+                    const candidate = match[1] || match[2];
+                    if (candidate && candidate.length > 15 && !candidate.includes('<') && !candidate.includes('function')) {
+                        keys.push(candidate);
+                    }
+                }
+            });
+            return keys;
+        }
+
+        function deduplicate(arr) {
+            return Array.from(new Set(arr));
+        }
+
+        function filterValidKeys(keys) {
+            const invalidPatterns = [
+                /^https?:\/\//i,
+                /^www\./i,
+                /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|html?)$/i,
+                /^(true|false|null|undefined|nan)$/i,
+                /^\d+$/,
+                /^\s*$/,
+                /<[^>]+>/,
+            ];
+            return keys.filter(key => !invalidPatterns.some(p => p.test(key)));
+        }
+
+        // ====== FETCH ======
+        async function fetchWithTimeout(url, timeout = 12000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    signal: controller.signal,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
+                    },
+                    mode: 'cors',
+                    credentials: 'omit',
+                    redirect: 'follow',
+                });
+                clearTimeout(timer);
+                return response;
+            } catch (error) {
+                clearTimeout(timer);
+                throw error;
+            }
+        }
+
+        // ====== BYPASS SINGLE URL ======
+        async function bypassSingleUrl(url) {
+            const keys = [];
+            const visited = new Set([url]);
+
+            try {
+                log('🔍 Membuka URL...', 'log-info');
+                const response = await fetchWithTimeout(url);
+
+                // Check redirect chain
+                const finalUrl = response.url;
+                if (finalUrl && finalUrl !== url && !visited.has(finalUrl)) {
+                    visited.add(finalUrl);
+                    log(`↪️ Redirect ke: ${finalUrl.substring(0, 70)}...`, 'log-info');
+                }
+
+                const text = await response.text();
+                log(`📄 Response size: ${(text.length / 1024).toFixed(1)} KB`, 'log-info');
+
+                // 1. Extract from URL params
+                const urlParams = extractQueryParams(finalUrl || url);
+                Object.entries(urlParams).forEach(([k, v]) => {
+                    if (/key|token|auth|api|code|access|secret|session|credential|signature|hash/i.test(k)) {
+                        const decoded = safeDecodeURI(v);
+                        keys.push(`${k}=${decoded}`);
+                        log(`✓ Key dari param "${k}"`, 'log-success');
+                    }
+                });
+
+                // 2. Special handling for platorelay-style "d" param
+                const dParam = urlParams['d'] || urlParams['data'] || urlParams['payload'] || urlParams['encoded'] || '';
+                if (dParam && dParam.length > 30) {
+                    const decoded = safeDecodeURI(dParam);
+                    const b64FromD = extractBase64Keys(decoded);
+                    b64FromD.forEach(k => {
+                        if (k.length > 50) {
+                            keys.push(k);
+                            log('✓ Long encoded string dari parameter utama', 'log-success');
+                        }
+                    });
+                    // Also push the raw decoded value if it looks like a key
+                    if (decoded.length > 50 && !decoded.includes('http') && !decoded.includes('<')) {
+                        keys.push(decoded);
+                    }
+                }
+
+                // 3. Extract from response body text
+                const textKeys = extractKeysFromText(text);
+                textKeys.forEach(k => {
+                    keys.push(k);
+                });
+                if (textKeys.length > 0) {
+                    log(`✓ ${textKeys.length} key dari response body`, 'log-success');
+                }
+
+                // 4. Extract base64-looking strings from response
+                const b64FromText = extractBase64Keys(text);
+                b64FromText.forEach(k => {
+                    if (k.length > 80 && !k.includes('http') && !k.includes('<')) {
+                        keys.push(k);
+                    }
+                });
+                if (b64FromText.length > 0) {
+                    log(`✓ ${b64FromText.length} encoded string dari response`, 'log-success');
+                }
+
+                // 5. Extract JSON-LD / embedded JSON
+                const jsonMatches = text.match(/<script[^>]*type="application\/(?:ld\+)?json"[^>]*>([\s\S]*?)<\/script>/gi);
+                if (jsonMatches) {
+                    jsonMatches.forEach(script => {
+                        const jsonContent = script.replace(/<[^>]+>/g, '').trim();
+                        try {
+                            const data = JSON.parse(jsonContent);
+                            const jsonStr = JSON.stringify(data);
+                            const jsonKeys = extractKeysFromText(jsonStr);
+                            jsonKeys.forEach(k => keys.push(k));
+                            if (jsonKeys.length > 0) log('✓ Key dari embedded JSON', 'log-success');
+                        } catch (e) {}
+                    });
+                }
+
+                // 6. Meta refresh redirect detection
+                const metaRefresh = text.match(/content="\d+;\s*url=([^"]+)"/i);
+                if (metaRefresh && metaRefresh[1]) {
+                    const redirectUrl = metaRefresh[1].replace(/&amp;/g, '&');
+                    log(`↪️ Meta refresh ke: ${redirectUrl.substring(0, 70)}...`, 'log-info');
+                    if (!visited.has(redirectUrl)) {
+                        visited.add(redirectUrl);
+                        // Extract from redirect URL
+                        const redirectParams = extractQueryParams(redirectUrl);
+                        Object.entries(redirectParams).forEach(([k, v]) => {
+                            if (/key|token|auth|api|code|access|secret|session|credential/i.test(k)) {
+                                keys.push(`${k}=${safeDecodeURI(v)}`);
+                                log(`✓ Key dari redirect param "${k}"`, 'log-success');
+                            }
+                        });
+                        const redirectB64 = extractBase64Keys(redirectUrl);
+                        redirectB64.forEach(k => {
+                            if (k.length > 50) keys.push(k);
+                        });
+                    }
+                }
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    log('⏰ Timeout pada request ini', 'log-warning');
+                } else if (error.message.includes('CORS')) {
+                    log('⚠️ CORS blocked, tapi lanjut ke iterasi berikutnya...', 'log-warning');
+                } else {
+                    log(`⚠️ Error: ${error.message.substring(0, 80)}`, 'log-warning');
+                }
+            }
+
+            return keys;
+        }
+
+        function safeDecodeURI(str) {
+            try {
+                return decodeURIComponent(str);
+            } catch (e) {
+                return str;
+            }
+        }
+
+        // ====== MAIN START ======
+        async function startBypass() {
+            if (isRunning) return;
+
+            const urlInput = document.getElementById('targetUrl').value.trim();
+            const delayInput = parseInt(document.getElementById('delayInput').value) || 3;
+            const iterInput = parseInt(document.getElementById('iterInput').value) || 5;
+
+            if (!urlInput) {
+                log('❌ URL-nya kosong Sayang! Tempel URL dulu ya 💕', 'log-error');
+                return;
+            }
+
+            const urls = urlInput.split('\n').filter(u => u.trim().length > 0);
+            if (urls.length === 0) {
+                log('❌ URL tidak valid!', 'log-error');
+                return;
+            }
+
+            isRunning = true;
+            foundKeys = [];
+            document.getElementById('btnStart').disabled = true;
+            document.getElementById('resultList').innerHTML = '';
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('btnCopyAll').disabled = true;
+
+            logSeparator();
+            log('🚀 <b>MULAI AUTO BYPASS</b>', 'log-bold');
+            log(`📊 Total URL: ${urls.length} | 🔁 Iterasi: ${iterInput} | ⏱️ Delay: ${delayInput}s`, 'log-accent');
+            logSeparator();
+
+            const allKeys = new Set();
+            let totalSteps = urls.length * iterInput;
+            let currentStep = 0;
+
+            for (let u = 0; u < urls.length; u++) {
+                const currentUrl = urls[u].trim();
+
+                if (urls.length > 1) {
+                    log(`\n📎 URL ${u + 1}/${urls.length}: ${currentUrl.substring(0, 60)}...`, 'log-accent');
+                }
+
+                for (let i = 0; i < iterInput; i++) {
+                    currentStep++;
+                    const progressPct = (currentStep / totalSteps) * 100;
+                    setProgress(progressPct, `Iterasi ${i + 1}/${iterInput} — URL ${u + 1}/${urls.length}`);
+
+                    log(`\n🔄 Iterasi ${i + 1}/${iterInput}`, 'log-accent');
+                    const keys = await bypassSingleUrl(currentUrl);
+                    keys.forEach(k => {
+                        if (k.length > 10) allKeys.add(k);
+                    });
+                    log(`📦 Total key sementara: ${allKeys.size}`, 'log-info');
+
+                    if (i < iterInput - 1) {
+                        await sleep(delayInput * 1000);
+                    }
+                }
+            }
+
+            foundKeys = filterValidKeys(deduplicate(Array.from(allKeys)));
+            hideProgress();
+
+            logSeparator();
+            if (foundKeys.length > 0) {
+                log(`✅ <b>SELESAI!</b> Total ${foundKeys.length} key ditemukan 🎉`, 'log-success');
+            } else {
+                log('😔 Tidak ada key ditemukan. Coba tambah iterasi/delay.', 'log-warning');
+            }
+            logSeparator();
+
+            if (foundKeys.length > 0) {
+                displayResults(foundKeys);
+                showModal(foundKeys);
+                document.getElementById('btnCopyAll').disabled = false;
+
+                // Auto copy first key
+                try {
+                    await navigator.clipboard.writeText(foundKeys[0]);
+                    log('📋 Key pertama auto-copy!', 'log-success');
+                } catch (e) {
+                    log('⚠️ Auto-copy gagal, gunakan tombol copy manual', 'log-warning');
+                }
+            }
+
+            isRunning = false;
+            document.getElementById('btnStart').disabled = false;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ====== DISPLAY RESULTS ======
+        function displayResults(keys) {
+            const resultsEl = document.getElementById('results');
+            const resultList = document.getElementById('resultList');
+            const resultCount = document.getElementById('resultCount');
+
+            resultList.innerHTML = '';
+            resultsEl.classList.add('active');
+            resultCount.textContent = `${keys.length} Key Ditemukan`;
+
+            const shownKeys = keys.slice(0, 25);
+            shownKeys.forEach((key, index) => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <span class="key-value">${escapeHtml(key)}</span>
+                    <button class="copy-btn" onclick="copySingleKey(${index})">📋 Copy</button>
+                `;
+                resultList.appendChild(card);
+            });
+
+            if (keys.length > 25) {
+                const moreInfo = document.createElement('div');
+                moreInfo.style.cssText = 'text-align:center;color:#666;font-size:0.8rem;padding:10px;font-style:italic;';
+                moreInfo.textContent = `... dan ${keys.length - 25} key lainnya (gunakan "Copy Semua")`;
+                resultList.appendChild(moreInfo);
+            }
+        }
+
+        // ====== MODAL ======
+        function showModal(keys) {
+            const overlay = document.getElementById('modalOverlay');
+            const modalKeyList = document.getElementById('modalKeyList');
+            const modalCount = document.getElementById('modalCount');
+
+            modalCount.textContent = `${keys.length} Key`;
+            modalKeyList.innerHTML = '';
+
+            const shownKeys = keys.slice(0, 12);
+            shownKeys.forEach((key, index) => {
+                const item = document.createElement('div');
+                item.className = 'key-item';
+                item.textContent = key;
+                item.title = 'Klik untuk copy';
+                item.onclick = () => {
+                    navigator.clipboard.writeText(key).then(() => {
+                        log('📋 Key di-copy dari popup!', 'log-success');
+                        item.style.borderColor = 'rgba(46, 204, 113, 0.8)';
+                        setTimeout(() => {
+                            item.style.borderColor = '';
+                        }, 500);
+                    });
+                };
+                modalKeyList.appendChild(item);
+            });
+
+            overlay.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // ====== COPY ======
+        function copySingleKey(index) {
+            if (index >= 0 && index < foundKeys.length) {
+                navigator.clipboard.writeText(foundKeys[index]).then(() => {
+                    log('📋 Key berhasil di-copy!', 'log-success');
+                }).catch(() => {
+                    log('⚠️ Gagal copy, coba lagi', 'log-warning');
+                });
+            }
+        }
+
+        function copyAllKeys() {
+            if (foundKeys.length === 0) return;
+            const allText = foundKeys.join('\n');
+            navigator.clipboard.writeText(allText).then(() => {
+                log(`📋 ${foundKeys.length} key berhasil di-copy semua! 🎉`, 'log-success');
+            }).catch(() => {
+                log('⚠️ Gagal copy semua', 'log-warning');
+            });
+        }
+
+        // ====== EVENT LISTENERS ======
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Enter key di textarea = Ctrl+Enter untuk start
+        document.getElementById('targetUrl').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                startBypass();
+            }
+        });
+
+        // ====== INIT ======
+        log('✨ <b>Aria Bypass Premium v1.0.0</b>', 'log-bold');
+        log('💡 Tips: Ctrl+Enter di textarea untuk langsung mulai', 'log-info');
+        log('🔗 Siap menerima URL target...', 'log-info');
+    </script>
+</body>
+  </html>
